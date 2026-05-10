@@ -1,3 +1,6 @@
+<head>
+    <title>Cube Runner</title>
+</head>
 <style>
   body {
     margin: 0;
@@ -23,6 +26,7 @@
   import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
   const scene = new THREE.Scene()
+  scene.background = new THREE.Color(0x34303A)
   const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
@@ -31,23 +35,44 @@
   )
 
   const renderer = new THREE.WebGLRenderer()
+  renderer.shadowMap.enabled = true
   renderer.setSize(window.innerWidth, window.innerHeight)
   document.body.appendChild(renderer.domElement)
 
   const controls = new OrbitControls(camera, renderer.domElement)
 
-  const geometry = new THREE.BoxGeometry(1, 1, 1)
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-  const cube = new THREE.Mesh(geometry, material)
+  class Box extends THREE.Mesh {
+    constructor({width, height, depth}, color) {
+        super(new THREE.BoxGeometry(width, height, depth), new THREE.MeshStandardMaterial({ color: color }))
+
+        this.width = width
+        this.height = height
+        this.depth = depth
+        }  }
+
+  const cube = new Box({width: 1, height: 3, depth: 3}, 0xC5D1EB)
+  cube.castShadow = true
   scene.add(cube)
+
+  const platform = new Box({width: 5, height: 0.5, depth: 10}, 0x006C67)
+  platform.receiveShadow = true
+  platform.position.y = -2
+  scene.add(platform)
+
+  const light = new THREE.DirectionalLight(0xE4F8ED,0.5)
+  const ambientLight = new THREE.AmbientLight(0xE4F8ED, 0.5)
+  scene.add(ambientLight)
+  light.position.y = 3  
+  light.position.z = 2
+  light.castShadow = true
+  scene.add(light)
 
   camera.position.z = 5
 
+  console.log(platform.position.y+platform.height/2)
   function animate() {
     requestAnimationFrame(animate)
     renderer.render(scene, camera)
-    cube.rotation.x += 0.01
-    cube.rotation.y += 0.01
   }
   animate()
 </script>
