@@ -113,7 +113,7 @@
   cube.castShadow = true
   scene.add(cube)
 
-  const platform = new Box({width: 5, height: 0.5, depth: 10, color: 0x006C67, position: { x: 0, y: -2, z: 0 }})
+  const platform = new Box({width: 10, height: 0.5, depth: 50, color: 0x006C67, position: { x: 0, y: -2, z: 0 }})
   platform.receiveShadow = true
   scene.add(platform)
 
@@ -167,13 +167,16 @@
         break
     }
   })
-  const enemy = new Box({width: 1, height: 1, depth: 1, color: 0xB6465F, velocity: { x: 0, y: 0, z: 0.01 }, position: { x: 0, y: 0, z: -4 }, zAcceleration: true  })
-  enemy.castShadow = true
-  scene.add(enemy)
-  const enemies = [enemy]
+
+  const enemies = []
   
+
+  let frames = 0
+  let spawnrate = 200
   function animate() {
     const animationID = requestAnimationFrame(animate)
+    renderer.setPixelRatio(window.devicePixelRatio);
+
     renderer.render(scene, camera)
     cube.velocity.x = 0
     cube.velocity.z = 0
@@ -186,10 +189,21 @@
       enemy.update(platform)
       if (boxCollision({box1:cube,box2:enemy})) {
         window.cancelAnimationFrame(animationID)
-        alert('Game Over')
+        if (confirm('Game over! Play Again?')) {
+          window.location.reload()
+        }
       }
     })
 
+    if (frames % spawnrate === 0) {
+      if (spawnrate > 20) spawnrate -= 20
+      const enemy = new Box({width: 1, height: 1, depth: 1, color: 0xB6465F, velocity: { x: 0, y: 0, z: 0.01 }, position: { x: (Math.random() -0.5) * 5, y: 0, z: -20 }, zAcceleration: true  })
+      enemy.castShadow = true
+      scene.add(enemy)
+      enemies.push(enemy)
+    }
+
+    frames++
     cube.update(platform)
   }
   animate()
