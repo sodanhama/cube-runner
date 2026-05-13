@@ -24,6 +24,9 @@
 <script type="module">
   import * as THREE from 'three'
   import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+    import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
+  import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
+  import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0x34303A)
@@ -42,14 +45,31 @@
   const controls = new OrbitControls(camera, renderer.domElement)
 
   class Box extends THREE.Mesh {
-    constructor({width, height, depth, color, velocity={ x: 0, y: 0, z: 0 }, position={ x: 0, y: 0, z: 0 }, zAcceleration=false}) {
-        super(new THREE.BoxGeometry(width, height, depth), new THREE.MeshStandardMaterial({ color: color }))
+    constructor({width, height, depth, color, velocity={ x: 0, y: 0, z: 0 }, position={ x: 0, y: 0, z: 0 }, zAcceleration=false, borderColor=0x2B303A, borderWidth=3}) {
+        super(new THREE.BoxGeometry(width, height, depth), new THREE.MeshStandardMaterial({ 
+          color: color,          
+          polygonOffset: true,
+          polygonOffsetFactor: 1,
+          polygonOffsetUnits: 1
+        }))
 
         this.width = width
         this.height = height
         this.depth = depth
         this.position.set(position.x, position.y, position.z)
+        const edgeGeometry = new THREE.EdgesGeometry(this.geometry)
+        
+        const fatLineGeometry = new LineSegmentsGeometry()
+        fatLineGeometry.setPositions(edgeGeometry.attributes.position.array)
 
+        this.borderMaterial = new LineMaterial({ 
+          color: borderColor,
+          linewidth: borderWidth, 
+          resolution: new THREE.Vector2(window.innerWidth, window.innerHeight) 
+        })
+
+        const borderLines = new LineSegments2(fatLineGeometry, this.borderMaterial)
+        this.add(borderLines)
         this.right = this.position.x + this.width/2
         this.left = this.position.x - this.width/2
 
@@ -209,5 +229,15 @@
     frames++
     cube.update(platform)
   }
+    window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    
+    cube.borderMaterial.resolution.set(window.innerWidth, window.innerHeight)
+    platform.borderMaterial.resolution.set(window.innerWidth, window.innerHeight)
+    enemies.forEach(enemy => enemy.borderMaterial.resolution.set(window.innerWidth, window.innerHeight))
+  })
+
   animate()
 </script>
