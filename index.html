@@ -148,6 +148,9 @@
       case 'KeyS':
         keys.s.pressed = true
         break
+      case 'Space':
+        cube.velocity.y = 0.15
+        break
     }
   })
 
@@ -197,7 +200,7 @@
 
     if (frames % spawnrate === 0) {
       if (spawnrate > 20) spawnrate -= 20
-      const enemy = new Box({width: 1, height: 1, depth: 1, color: 0xB6465F, velocity: { x: 0, y: 0, z: 0.01 }, position: { x: (Math.random() -0.5) * 5, y: 0, z: -20 }, zAcceleration: true  })
+      const enemy = new Box({width: 1, height: 1, depth: 1, color: 0xB6465F, velocity: { x: 0, y: 0, z: 0.01 }, position: { x: (Math.random() -0.5) * 9, y: 0, z: -20 }, zAcceleration: true  })
       enemy.castShadow = true
       scene.add(enemy)
       enemies.push(enemy)
