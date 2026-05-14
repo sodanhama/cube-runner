@@ -46,7 +46,7 @@
 
   class Box extends THREE.Mesh {
     constructor({width, height, depth, color, velocity={ x: 0, y: 0, z: 0 }, position={ x: 0, y: 0, z: 0 }, zAcceleration=false, borderColor=0x2B303A, borderWidth=3}) {
-        super(new THREE.BoxGeometry(width, height, depth), new THREE.MeshStandardMaterial({ 
+        super(new THREE.BoxGeometry(width, height, depth), new THREE.MeshToonMaterial({ 
           color: color,          
           polygonOffset: true,
           polygonOffsetFactor: 1,
@@ -108,14 +108,19 @@
       }
 
         applyGravity(platform) {
-        this.velocity.y += this.gravity
+  this.velocity.y += this.gravity;
 
-        if (boxCollision({box1: this, box2: platform})) {
-          this.velocity.y *= 0.8
-          this.velocity.y = -this.velocity.y}
-        else
-          this.position.y += this.velocity.y
-        }
+  if (boxCollision({ box1: this, box2: platform })) {
+    this.canJump = true;
+    
+    this.velocity.y *= 0.5;
+    this.velocity.y = -this.velocity.y;
+  } else {
+    this.position.y += this.velocity.y;
+    
+    if (this.velocity.y > 0.02) this.canJump = false;
+  }
+}
         }
       
   function boxCollision({box1, box2}) {
@@ -151,7 +156,8 @@
     a: {pressed:false},
     d: {pressed:false},
     w: {pressed:false},
-    s: {pressed:false}
+    s: {pressed:false},
+    space: {pressed:false}
   }
 
   window.addEventListener('keydown', (event) => {
@@ -169,8 +175,11 @@
         keys.s.pressed = true
         break
       case 'Space':
-        cube.velocity.y = 0.15
-        break
+        if (cube.canJump) {
+        cube.velocity.y = 0.15;
+        cube.canJump = false;
+      }
+        break;
     }
   })
 
@@ -188,6 +197,7 @@
       case 'KeyS':
         keys.s.pressed = false
         break
+
     }
   })
 
@@ -220,7 +230,7 @@
 
     if (frames % spawnrate === 0) {
       if (spawnrate > 20) spawnrate -= 20
-      const enemy = new Box({width: 1, height: 1, depth: 1, color: 0xB6465F, velocity: { x: 0, y: 0, z: 0.01 }, position: { x: (Math.random() -0.5) * 9, y: 0, z: -20 }, zAcceleration: true  })
+      const enemy = new Box({width: 1, height: 1, depth: 1, color: 0xB6465F, velocity: { x: 0, y: 0, z: 0.01 }, position: { x: (Math.random() -0.5) * 9, y: 0, z: -25 }, zAcceleration: true  })
       enemy.castShadow = true
       scene.add(enemy)
       enemies.push(enemy)
