@@ -1,6 +1,9 @@
 <head>
     <title>Cube Runner</title>
 </head>
+<body>
+  <div id="youtube-player" style="display: none;"></div>
+</body>
 <style>
   body {
     margin: 0;
@@ -24,9 +27,42 @@
 <script type="module">
   import * as THREE from 'three'
   import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-    import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
+  import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js'
   import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
   import { LineSegments2 } from 'three/addons/lines/LineSegments2.js'
+
+  const tag = document.createElement('script')
+  tag.src = "https://www.youtube.com/iframe_api"
+  const firstScriptTag = document.getElementsByTagName('script')[0]
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag)
+
+  let player
+
+  window.onYouTubeIframeAPIReady = function() {
+    player = new YT.Player('youtube-player',{
+      height:'0',
+      width:'0',
+      videoId:'3kz7oCumDI8',
+      playerVars: {
+        'autoplay':1,
+        'controls':0,
+      },
+      events: {
+        'onReady': onPlayerReady
+      }
+    })
+  }
+
+  function onPlayerReady(event) {
+    console.log('Audio Ready')
+
+  }
+
+  window.addEventListener('click', ()=>{
+    if (player && player.playVideo) {
+      player.playVideo()
+    }
+  }, {once: true})
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color(0x34303A)
@@ -108,10 +144,10 @@
       }
 
         applyGravity(platform) {
-  this.velocity.y += this.gravity;
+          this.velocity.y += this.gravity;
 
-  if (boxCollision({ box1: this, box2: platform })) {
-    this.canJump = true;
+          if (boxCollision({ box1: this, box2: platform })) {
+          this.canJump = true;
     
     this.velocity.y *= 0.5;
     this.velocity.y = -this.velocity.y;
@@ -222,6 +258,9 @@
       enemy.update(platform)
       if (boxCollision({box1:cube,box2:enemy})) {
         window.cancelAnimationFrame(animationID)
+        if (player && player.stopVideo) {
+        player.stopVideo();
+    }
         if (confirm('Game over! Play Again?')) {
           window.location.reload()
         }
