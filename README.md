@@ -4,6 +4,8 @@ A simple 3D browser game made using ThreeJS.
 
 I have implemented a simple class to create cubes, which act as the player, the platform, and enemies which increase their spawnrate with time, and added a combination of ambient light and directional light.
 
+I standardised the FPS to 60 as I am using a 60 Hz screen and do not want the game to run too quick on 120 Hz screens.
+
 I added music from Liar Game OP.
 
 I have used ThreeJS geometry to add outlines, which makes it look more stylised.
