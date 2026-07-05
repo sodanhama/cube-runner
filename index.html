@@ -242,7 +242,22 @@
 
   let frames = 0
   let spawnrate = 200
+
+  let msPrev = window.performance.now()
+  const fps = 60
+  const msPerFrame = 1000 / fps
+
+
   function animate() {
+    window.requestAnimationFrame(animate)
+
+    const msNow = window.performance.now()
+    const msPassed = msNow - msPrev
+    if (msPassed < msPerFrame) return
+    const excessTime = msPassed % msPerFrame
+    msPrev = msNow - excessTime
+
+
     const animationID = requestAnimationFrame(animate)
     renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -256,15 +271,19 @@
 
     enemies.forEach(enemy => {
       enemy.update(platform)
-      if (boxCollision({box1:cube,box2:enemy})) {
-        window.cancelAnimationFrame(animationID)
-        if (player && player.stopVideo) {
+      
+      if (boxCollision({box1:cube, box2:enemy})) {
+    window.cancelAnimationFrame(animationID);
+    
+    // Stop the YouTube music
+    if (player && player.stopVideo) {
         player.stopVideo();
     }
-        if (confirm('Game over! Play Again?')) {
-          window.location.reload()
-        }
-      }
+
+    if (confirm('Game over! Play Again?')) {
+        window.location.reload();
+    }
+}
     })
 
     if (frames % spawnrate === 0) {
